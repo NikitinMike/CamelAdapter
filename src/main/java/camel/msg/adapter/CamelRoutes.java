@@ -1,8 +1,8 @@
-package camel.msg.adapter.example;
+package camel.msg.adapter;
 
-import camel.msg.adapter.example.data.Coordinates;
-import camel.msg.adapter.example.data.MsgA;
-import camel.msg.adapter.example.data.MsgB;
+import camel.msg.adapter.data.Coordinates;
+import camel.msg.adapter.data.MsgA;
+import camel.msg.adapter.data.MsgB;
 import java.util.Date;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;

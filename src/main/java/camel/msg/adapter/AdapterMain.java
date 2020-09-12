@@ -1,11 +1,10 @@
-package camel.msg.adapter.example;
+package camel.msg.adapter;
 
 import static java.lang.Math.random;
 import static java.lang.Math.round;
 
-import camel.msg.adapter.example.data.Coordinates;
-import camel.msg.adapter.example.data.MsgA;
-import javax.jms.ConnectionFactory;
+import camel.msg.adapter.data.Coordinates;
+import camel.msg.adapter.data.MsgA;
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.camel.CamelContext;
 import org.apache.camel.ProducerTemplate;

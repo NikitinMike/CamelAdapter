@@ -1,4 +1,4 @@
-package camel.msg.adapter.example.data;
+package camel.msg.adapter.data;
 
 import java.io.Serializable;
 import javax.validation.constraints.NotBlank;
