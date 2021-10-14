@@ -8,7 +8,7 @@
   <parent>
     <groupId>org.apache.camel</groupId>
     <artifactId>camel-dependencies</artifactId>
-    <version>3.6.0-SNAPSHOT</version>
+    <version>3.5.0</version>
   </parent>
 
   <artifactId>msg-adapter</artifactId>
@@ -22,13 +22,13 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
-    <jdk.version>1.8</jdk.version>
+    <jdk.version>11</jdk.version>
     <compiler.fork>false</compiler.fork>
 
-    <camel.version>3.6.0-SNAPSHOT</camel.version>
+    <camel.version>3.6.0</camel.version>
 
     <!-- Versions -->
-    <log4j2-version>2.13.3</log4j2-version>
+    <log4j2-version>2.14.1</log4j2-version>
     <cdi-api-1.2-version>1.2</cdi-api-1.2-version>
     <groovy-version>3.0.2</groovy-version>
     <maven-compiler-plugin-version>3.8.1</maven-compiler-plugin-version>
@@ -143,7 +143,7 @@
     <dependency>
       <groupId>org.junit.jupiter</groupId>
       <artifactId>junit-jupiter</artifactId>
-      <version>RELEASE</version>
+      <version>5.8.1</version>
       <scope>test</scope>
     </dependency>
 
@@ -161,13 +161,13 @@
         </configuration>
       </plugin>
 
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-deploy-plugin</artifactId>
-        <configuration>
-          <skip>true</skip>
-        </configuration>
-      </plugin>
+<!--      <plugin>-->
+<!--        <groupId>org.apache.maven.plugins</groupId>-->
+<!--        <artifactId>maven-deploy-plugin</artifactId>-->
+<!--        <configuration>-->
+<!--          <skip>true</skip>-->
+<!--        </configuration>-->
+<!--      </plugin>-->
 
       <!-- update readme file -->
       <plugin>
@@ -218,13 +218,13 @@
           <encoding>UTF-8</encoding>
         </configuration>
       </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-resources-plugin</artifactId>
-        <configuration>
-          <encoding>UTF-8</encoding>
-        </configuration>
-      </plugin>
+<!--      <plugin>-->
+<!--        <groupId>org.apache.maven.plugins</groupId>-->
+<!--        <artifactId>maven-resources-plugin</artifactId>-->
+<!--        <configuration>-->
+<!--          <encoding>UTF-8</encoding>-->
+<!--        </configuration>-->
+<!--      </plugin>-->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
@@ -252,6 +252,7 @@
           <fork>${compiler.fork}</fork>
         </configuration>
       </plugin>
+<!--
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
@@ -272,10 +273,11 @@
           </execution>
         </executions>
         <configuration>
-          <source>1.8</source>
-          <target>1.8</target>
+          <source>11</source>
+          <target>11</target>
         </configuration>
       </plugin>
+-->
     </plugins>
     <pluginManagement>
       <plugins>
