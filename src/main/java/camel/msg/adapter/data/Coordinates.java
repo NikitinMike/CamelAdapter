@@ -16,4 +16,9 @@ public class Coordinates implements Serializable {
   @NotBlank
   double longitude; // Долгота
 
+  @Override
+  public String toString(){
+    return String.format("lat=%s&lon=%s", latitude, longitude);
+  }
+
 }

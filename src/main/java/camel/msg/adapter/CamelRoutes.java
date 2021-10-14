@@ -8,7 +8,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.camel.Exchange;
 import org.apache.camel.builder.endpoint.EndpointRouteBuilder;
 import org.apache.camel.component.http.HttpMethods;
-import org.apache.camel.model.rest.RestBindingMode;
 
 import java.util.Date;
 import java.util.regex.Matcher;
@@ -19,92 +18,93 @@ public class CamelRoutes extends EndpointRouteBuilder {
     String weatherUrl = "https://api.openweathermap.org/data/2.5/weather";
     String apikey = "f465148ee89b812ecf2ce551a19ce0bc";
     String city = "London";
+    String mycoordinates = "lat=54.35&lon=52.52";
 
     ObjectMapper mapper = new ObjectMapper();
 
     @Override
     public void configure() {
-        restConfiguration()
-                .component("undertow")
-                .bindingMode(RestBindingMode.json)
-                .host("localhost").port(8080)
-                .apiProperty("cors", "true");
+//        restConfiguration()
+//                .component("undertow")
+//                .bindingMode(RestBindingMode.json)
+//                .host("localhost").port(8080)
+////                .apiProperty("cors", "true")
+//        ;
 
         from("direct:start")
                 .log("START")
                 .to("direct:adapter");
 
-        String mycoordinates = "lat=54.35&lon=52.52";
-
-        from("direct:temp")
+        from("direct:getTemp")
+//                .log("getTemp: ${body.coordinates}")
+//                .log("getTemp: ${header.coordinates}")
                 .setHeader(Exchange.HTTP_METHOD, constant(HttpMethods.GET))
 //                .to(String.format("%s?q=%s&appid=%s&bridgeEndpoint=true", weatherUrl, city, apikey))
-                .to(weatherUrl+String.format("?%s&appid=%s&bridgeEndpoint=true", mycoordinates , apikey))
+//                .process(exchange -> {
+//                    Coordinates coordinates = exchange.getIn().getBody(MsgA.class).getCoordinates();
+//                    System.out.println(coordinates);
+//                    mycoordinates = coordinates.toString();
+//                })
+                .log("${body}")
+                .to(weatherUrl+String.format("?%s&appid=%s&bridgeEndpoint=true", mycoordinates, apikey))
 //                .log("${body}")
                 .process(exchange -> {
                     final CurrentWeather weather = mapper.readValue(exchange.getIn().getBody(String.class), CurrentWeather.class);
 //                    System.out.println(weather);
                     exchange.getIn().setHeader("currentTemp", weather.getMain().getTemp());
                 })
-//                .log("finish: ${header.currentTemp}")
+//                .log("getTemp: ${header.currentTemp}")
         ;
 
-
         from("direct:adapter")
-//                .unmarshal().json(JsonLibrary.Jackson, MsgA.class)
-                .log("ADAPTER< ${body}")
-                .to("direct:getlng").filter(body().isNotNull())
-//            .log("LNG")
-                .to("direct:getmsg")
-//            .log("MSG")
-                .log("${body}")
+                .to("direct:getLng").filter(body().isNotNull())
+                .to("direct:getMsg")
+                .log("ADAPTER << ${body}")
                 .choice()
                     .when(body().isNull())
                     .to("direct:error")
                     .otherwise()
                     .to("direct:message")
                 .end()
-//                .marshal().json(JsonLibrary.Jackson, MsgB.class)
         ;
 
-//    3
         from("direct:error")
                 .setBody(simple("Invalid input message"))
                 .log("Error: ${body}");
 
         from("direct:message")
                 .process(exchange -> {
-                    Coordinates coordinates = exchange.getIn().getBody(MsgA.class).getCoordinates();
-                    exchange.getIn().setHeader("coordinates", String.format("lat=%s&lon=%s",
-                            coordinates.getLatitude(), coordinates.getLongitude()));
                     exchange.getIn().setHeader("msg", exchange.getIn().getBody(MsgA.class).getMsg());
+                    final Coordinates coordinates = exchange.getIn().getBody(MsgA.class).getCoordinates();
+//                    exchange.getIn().setHeader("coordinates", String.format("lat=%s&lon=%s",
+//                            coordinates.getLatitude(), coordinates.getLongitude()));
+                    mycoordinates = coordinates.toString();
+// String.format("lat=%s&lon=%s", coordinates.getLatitude(), coordinates.getLongitude());
                 })
-                .log("COORDINATES> ${header.coordinates}")
-                .to("direct:temp")
-//            .log("TEMPERATURE> ${header.currentTemp}")
+//                .log("COORDINATES> ${header.coordinates}")
+                .to("direct:getTemp")
+//                .log("TEMPERATURE> ${header.currentTemp}")
                 .process(exchange -> {
                     Integer currentTemp = exchange.getIn().getHeader("currentTemp", Integer.class);
                     String msg = exchange.getIn().getHeader("msg", String.class);
-                    exchange.getIn().setBody(
-                            new MsgB(msg, new Date().toString(), currentTemp).toString()
-                    );
+                    exchange.getIn().setBody(new MsgB(msg, new Date().toString(), currentTemp).toString());
                 })
                 .to("jms:queue:MsgB");
 
-        from("direct:serviceb")
+        from("direct:serviceB")
                 .log("ServiceB> ${body}");
 
         from("jms:queue:MsgB")
-                .to("direct:serviceb")
+                .to("direct:serviceB")
                 .transform(simple("${body}"));
 
-        from("direct:getlng")
+        from("direct:getLng")
                 .process(exchange -> {
                     final String lng = exchange.getIn().getBody(MsgA.class).getLng();
                     if (!lng.matches("ru|RU")) exchange.getIn().setBody(null);
                 });
 
-        from("direct:getmsg")
+        from("direct:getMsg")
                 .process(exchange -> {
                     final String msg = exchange.getIn().getBody(MsgA.class).getMsg();
                     if (msg == null || msg.equals("")) exchange.getIn().setBody(null);
