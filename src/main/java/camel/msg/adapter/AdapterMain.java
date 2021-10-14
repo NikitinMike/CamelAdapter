@@ -26,7 +26,7 @@ public final class AdapterMain {
     camel.addRoutes(new CamelRoutes());
     camel.start();
     testingCamel(1);
-    Thread.sleep(100_000);
+    Thread.sleep(1_000);
     camel.stop();
 
   }
