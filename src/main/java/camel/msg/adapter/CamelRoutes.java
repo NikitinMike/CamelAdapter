@@ -15,56 +15,42 @@ import java.util.regex.Pattern;
 
 public class CamelRoutes extends EndpointRouteBuilder {
 
-    String weatherUrl = "https://api.openweathermap.org/data/2.5/weather";
+    String weatherUrl = "https://api.openweathermap.org/data/2.5/weather?";
     String apikey = "f465148ee89b812ecf2ce551a19ce0bc";
-    String city = "London";
-    String mycoordinates = "lat=54.35&lon=52.52";
+    String city = "Yoshkar-Ola"; //  "London";
 
     ObjectMapper mapper = new ObjectMapper();
+    String pos = "lat=56.638771&lon=47.890781";
 
     @Override
     public void configure() {
-//        restConfiguration()
-//                .component("undertow")
-//                .bindingMode(RestBindingMode.json)
-//                .host("localhost").port(8080)
-////                .apiProperty("cors", "true")
-//        ;
 
         from("direct:start")
                 .log("START")
                 .to("direct:adapter");
 
         from("direct:getTemp")
-//                .log("getTemp: ${body.coordinates}")
-//                .log("getTemp: ${header.coordinates}")
+                .log("POS:${body}")
                 .setHeader(Exchange.HTTP_METHOD, constant(HttpMethods.GET))
-//                .to(String.format("%s?q=%s&appid=%s&bridgeEndpoint=true", weatherUrl, city, apikey))
-//                .process(exchange -> {
-//                    Coordinates coordinates = exchange.getIn().getBody(MsgA.class).getCoordinates();
-//                    System.out.println(coordinates);
-//                    mycoordinates = coordinates.toString();
-//                })
-                .log("${body}")
-                .to(weatherUrl+String.format("?%s&appid=%s&bridgeEndpoint=true", mycoordinates, apikey))
-//                .log("${body}")
+                .to(weatherUrl + pos + "&appid=" + apikey + "&units=metric&bridgeEndpoint=true")
+//                .to(weatherUrl+"${body}"+"&appid="+apikey+"&units=metric&bridgeEndpoint=true")
+
                 .process(exchange -> {
                     final CurrentWeather weather = mapper.readValue(exchange.getIn().getBody(String.class), CurrentWeather.class);
 //                    System.out.println(weather);
                     exchange.getIn().setHeader("currentTemp", weather.getMain().getTemp());
                 })
-//                .log("getTemp: ${header.currentTemp}")
         ;
 
         from("direct:adapter")
                 .to("direct:getLng").filter(body().isNotNull())
                 .to("direct:getMsg")
-                .log("ADAPTER << ${body}")
+                .log("ADA<<${body}")
                 .choice()
-                    .when(body().isNull())
-                    .to("direct:error")
-                    .otherwise()
-                    .to("direct:message")
+                .when(body().isNull())
+                .to("direct:error")
+                .otherwise()
+                .to("direct:message")
                 .end()
         ;
 
@@ -73,26 +59,25 @@ public class CamelRoutes extends EndpointRouteBuilder {
                 .log("Error: ${body}");
 
         from("direct:message")
+                .process(exchange -> exchange.getIn().setHeader("msg", exchange.getIn().getBody(MsgA.class).getMsg()))
+//                .log("${body}")
                 .process(exchange -> {
-                    exchange.getIn().setHeader("msg", exchange.getIn().getBody(MsgA.class).getMsg());
                     final Coordinates coordinates = exchange.getIn().getBody(MsgA.class).getCoordinates();
-//                    exchange.getIn().setHeader("coordinates", String.format("lat=%s&lon=%s",
-//                            coordinates.getLatitude(), coordinates.getLongitude()));
-                    mycoordinates = coordinates.toString();
-// String.format("lat=%s&lon=%s", coordinates.getLatitude(), coordinates.getLongitude());
+                    pos = coordinates.toString();
+//                    System.out.println(pos);
+//                    weatherUrlpos = weatherUrl+pos;
+                    exchange.getIn().setBody(coordinates.toString());
                 })
-//                .log("COORDINATES> ${header.coordinates}")
                 .to("direct:getTemp")
-//                .log("TEMPERATURE> ${header.currentTemp}")
                 .process(exchange -> {
                     Integer currentTemp = exchange.getIn().getHeader("currentTemp", Integer.class);
                     String msg = exchange.getIn().getHeader("msg", String.class);
-                    exchange.getIn().setBody(new MsgB(msg, new Date().toString(), currentTemp).toString());
+                    exchange.getIn().setBody(new MsgB(msg, new Date(), currentTemp).toString());
                 })
                 .to("jms:queue:MsgB");
 
         from("direct:serviceB")
-                .log("ServiceB> ${body}");
+                .log("SrvB>>${body}");
 
         from("jms:queue:MsgB")
                 .to("direct:serviceB")
@@ -111,28 +96,18 @@ public class CamelRoutes extends EndpointRouteBuilder {
                 });
 
         from("direct:weather")
-//            .log("WEATHER< ${header.coordinates}")
-//            .log("WEATHER< ${body}")
                 .setHeader(Exchange.HTTP_METHOD, constant(HttpMethods.GET))
-                .to(String.format("%s?q=%s&appid=%s&bridgeEndpoint=true", weatherUrl, city, apikey))
-//                .log("BODY> ${body}")
+                .to(String.format("%sq=%s&appid=%s&bridgeEndpoint=true", weatherUrl, city, apikey))
                 .process(exchange -> {
                     String body = exchange.getIn().getBody(String.class);
-//                    System.out.println(body);
                     CurrentWeather weather = mapper.readValue(body, CurrentWeather.class);
-//                    System.out.println(weather.getMain());
                     exchange.getIn().setHeader("currentTemp", weather.getMain().getTemp());
-                })
-//                .log("${header.currentTemp}")
-        ;
+                });
 
         from("direct:yandexWeather")
-//            .log("WEATHER< ${header.coordinates}")
-//            .log("WEATHER< ${body}")
                 .setHeader(Exchange.HTTP_METHOD, simple("GET"))
                 .setHeader("X-Yandex-API-Key", constant("6667c51e-dc0b-4b1c-9218-4ed662bcdab5"))
                 .to("https://api.weather.yandex.ru/v2/forecast?${header.coordinates}&bridgeEndpoint=true")
-//            .log(">${body}")
                 .process(exchange -> {
                     final String rows = exchange.getIn().getBody(String.class)
                             .replaceAll("\"", "").replaceAll(" ", "");
