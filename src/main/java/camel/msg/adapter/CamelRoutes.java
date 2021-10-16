@@ -15,27 +15,25 @@ import java.util.regex.Pattern;
 
 public class CamelRoutes extends EndpointRouteBuilder {
 
-    String weatherUrl = "https://api.openweathermap.org/data/2.5/weather?";
+    String weatherUrl = "https://api.openweathermap.org/data/2.5/weather";
     String apikey = "f465148ee89b812ecf2ce551a19ce0bc";
     String city = "Yoshkar-Ola"; //  "London";
+    String paramUri = "&appid=" + apikey + "&units=metric&bridgeEndpoint=true";
 
     ObjectMapper mapper = new ObjectMapper();
-    String pos = "lat=56.638771&lon=47.890781";
 
     @Override
     public void configure() {
 
         from("direct:start")
-                .log("START")
+//                .log("START")
                 .to("direct:adapter");
 
         from("direct:getTemp")
                 .log("POS:${body}")
+                .setHeader(Exchange.HTTP_QUERY, simple("${body}"+paramUri))
                 .setHeader(Exchange.HTTP_METHOD, constant(HttpMethods.GET))
-                .log(weatherUrl + pos + "&appid=" + apikey + "&units=metric&bridgeEndpoint=true")
-                .to(weatherUrl + pos + "&appid=" + apikey + "&units=metric&bridgeEndpoint=true")
-//                .to(weatherUrl+"${body}"+"&appid="+apikey+"&units=metric&bridgeEndpoint=true")
-
+                .to(weatherUrl)
                 .process(exchange -> {
                     final CurrentWeather weather = mapper.readValue(exchange.getIn().getBody(String.class), CurrentWeather.class);
 //                    System.out.println(weather);
@@ -46,7 +44,7 @@ public class CamelRoutes extends EndpointRouteBuilder {
         from("direct:adapter")
                 .to("direct:getLng").filter(body().isNotNull())
                 .to("direct:getMsg")
-                .log("ADA<<${body}")
+//                .log("ADA<<${body}")
                 .choice()
                 .when(body().isNull())
                 .to("direct:error")
@@ -64,9 +62,6 @@ public class CamelRoutes extends EndpointRouteBuilder {
 //                .log("${body}")
                 .process(exchange -> {
                     final Coordinates coordinates = exchange.getIn().getBody(MsgA.class).getCoordinates();
-                    pos = coordinates.toString();
-//                    System.out.println(pos);
-//                    weatherUrlpos = weatherUrl+pos;
                     exchange.getIn().setBody(coordinates.toString());
                 })
                 .to("direct:getTemp")
@@ -94,15 +89,6 @@ public class CamelRoutes extends EndpointRouteBuilder {
                 .process(exchange -> {
                     final String msg = exchange.getIn().getBody(MsgA.class).getMsg();
                     if (msg == null || msg.equals("")) exchange.getIn().setBody(null);
-                });
-
-        from("direct:weather")
-                .setHeader(Exchange.HTTP_METHOD, constant(HttpMethods.GET))
-                .to(String.format("%sq=%s&appid=%s&bridgeEndpoint=true", weatherUrl, city, apikey))
-                .process(exchange -> {
-                    String body = exchange.getIn().getBody(String.class);
-                    CurrentWeather weather = mapper.readValue(body, CurrentWeather.class);
-                    exchange.getIn().setHeader("currentTemp", weather.getMain().getTemp());
                 });
 
         from("direct:yandexWeather")
