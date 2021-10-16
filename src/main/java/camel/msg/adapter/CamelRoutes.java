@@ -32,6 +32,7 @@ public class CamelRoutes extends EndpointRouteBuilder {
         from("direct:getTemp")
                 .log("POS:${body}")
                 .setHeader(Exchange.HTTP_METHOD, constant(HttpMethods.GET))
+                .log(weatherUrl + pos + "&appid=" + apikey + "&units=metric&bridgeEndpoint=true")
                 .to(weatherUrl + pos + "&appid=" + apikey + "&units=metric&bridgeEndpoint=true")
 //                .to(weatherUrl+"${body}"+"&appid="+apikey+"&units=metric&bridgeEndpoint=true")
 

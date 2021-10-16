@@ -13,6 +13,8 @@ public class CurrentWeather {
     Main main;
     float visibility;
     Wind wind;
+    Rain rain;
+    Snow snow;
     Clouds clouds;
     float dt;
     Sys sys;
