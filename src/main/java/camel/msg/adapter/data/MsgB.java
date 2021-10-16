@@ -14,9 +14,9 @@ public class MsgB implements Serializable {
 
     private String txt;
     private String createdDt; // Дата формирования сообщения format: rfc3339
-    private Integer currentTemp; // Температура по Цельсию
+    private Double currentTemp; // Температура по Цельсию
 
-    public MsgB(String msg, Date date, Integer currentTemp) {
+    public MsgB(String msg, Date date, Double currentTemp) {
         txt = msg;
         this.currentTemp = currentTemp;
         createdDt = String.valueOf(date.getTime());
@@ -24,7 +24,7 @@ public class MsgB implements Serializable {
 
     @Override
     public String toString() {
-        return String.format("%s %s %d", txt, createdDt.substring(9), currentTemp);
+        return String.format("%s %s %.2f", txt, createdDt.substring(9), currentTemp);
     }
 
 }

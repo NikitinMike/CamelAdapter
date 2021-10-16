@@ -1,8 +1,5 @@
 package camel.msg.adapter;
 
-import static java.lang.Math.random;
-import static java.lang.Math.round;
-
 import camel.msg.adapter.data.Coordinates;
 import camel.msg.adapter.data.MsgA;
 import org.apache.activemq.ActiveMQConnectionFactory;
@@ -10,6 +7,8 @@ import org.apache.camel.CamelContext;
 import org.apache.camel.ProducerTemplate;
 import org.apache.camel.component.jms.JmsComponent;
 import org.apache.camel.impl.DefaultCamelContext;
+
+import static java.lang.Math.random;
 
 public final class AdapterMain {
 
@@ -32,7 +31,7 @@ public final class AdapterMain {
 
     }
 
-    static float rnd(int n) {return round(random() * n);}
+    static double rnd(int n) {return random() * n;}
 
     static void testingCamel(int n) {
         ProducerTemplate template = camel.createProducerTemplate();

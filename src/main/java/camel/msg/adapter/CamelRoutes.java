@@ -4,6 +4,7 @@ import camel.msg.adapter.data.Coordinates;
 import camel.msg.adapter.data.CurrentWeather;
 import camel.msg.adapter.data.MsgA;
 import camel.msg.adapter.data.MsgB;
+import camel.msg.adapter.data.weather.Weather;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.camel.Exchange;
 import org.apache.camel.builder.endpoint.EndpointRouteBuilder;
@@ -18,7 +19,7 @@ public class CamelRoutes extends EndpointRouteBuilder {
     String weatherUrl = "https://api.openweathermap.org/data/2.5/weather";
     String apikey = "f465148ee89b812ecf2ce551a19ce0bc";
     String city = "Yoshkar-Ola"; //  "London";
-    String paramUri = "&appid=" + apikey + "&units=metric&bridgeEndpoint=true";
+    String paramUri = "&appid=" + apikey + "&lang=ru&units=metric&bridgeEndpoint=true";
 
     ObjectMapper mapper = new ObjectMapper();
 
@@ -36,8 +37,11 @@ public class CamelRoutes extends EndpointRouteBuilder {
                 .to(weatherUrl)
                 .process(exchange -> {
                     final CurrentWeather weather = mapper.readValue(exchange.getIn().getBody(String.class), CurrentWeather.class);
-//                    System.out.println(weather);
+                    Weather w = weather.getWeather().get(0);
+//                    System.out.println(w);
                     exchange.getIn().setHeader("currentTemp", weather.getMain().getTemp());
+                    exchange.getIn().setHeader("name", weather.getName());
+                    exchange.getIn().setHeader("description", w.getDescription());
                 })
         ;
 
@@ -65,8 +69,9 @@ public class CamelRoutes extends EndpointRouteBuilder {
                     exchange.getIn().setBody(coordinates.toString());
                 })
                 .to("direct:getTemp")
+                .log("${header.name} : ${header.description}")
                 .process(exchange -> {
-                    Integer currentTemp = exchange.getIn().getHeader("currentTemp", Integer.class);
+                    Double currentTemp = exchange.getIn().getHeader("currentTemp", Double.class);
                     String msg = exchange.getIn().getHeader("msg", String.class);
                     exchange.getIn().setBody(new MsgB(msg, new Date(), currentTemp).toString());
                 })

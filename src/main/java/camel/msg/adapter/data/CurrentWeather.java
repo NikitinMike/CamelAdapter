@@ -9,7 +9,7 @@ import java.util.ArrayList;
 @Data
 public class CurrentWeather {
     Coord coord;
-    ArrayList<Object> weather = new ArrayList<>();
+    ArrayList<Weather> weather = new ArrayList<>();
     String base;
     Main main;
     float visibility;
