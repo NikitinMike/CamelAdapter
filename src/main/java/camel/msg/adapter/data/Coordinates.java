@@ -18,7 +18,7 @@ public class Coordinates implements Serializable {
 
   @Override
   public String toString(){
-    return String.format("lat=%.6f&lon=%.6f", latitude, longitude);
+    return String.format("lat=%.4f&lon=%.4f", latitude, longitude);
   }
 
 }
