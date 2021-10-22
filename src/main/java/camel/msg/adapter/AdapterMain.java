@@ -25,7 +25,7 @@ public final class AdapterMain {
 
         camel.addRoutes(new CamelRoutes());
         camel.start();
-        testingCamel(10);
+        testingCamel(9);
         Thread.sleep(1_000);
         camel.stop();
 
@@ -49,16 +49,16 @@ public final class AdapterMain {
         );
         for (int i = 1; i <= n; i++) { // cloud points
             template.sendBody("direct:start",
-                new MsgA("current " + i, "ru",
+                new MsgA("current " + i+1, "ru",
                     new Coordinates(lat - rnd(n), lon - rnd(n))));
             template.sendBody("direct:start",
-                new MsgA("current " + i, "ru",
+                new MsgA("current " + i+2, "ru",
                     new Coordinates(lat + rnd(n), lon + rnd(n))));
             template.sendBody("direct:start",
-                new MsgA("current " + i, "ru",
+                new MsgA("current " + i+3, "ru",
                     new Coordinates(lat + rnd(n), lon - rnd(n))));
             template.sendBody("direct:start",
-                new MsgA("current " + i, "ru",
+                new MsgA("current " + i+4, "ru",
                     new Coordinates(lat - rnd(n), lon + rnd(n))));
         }
     }

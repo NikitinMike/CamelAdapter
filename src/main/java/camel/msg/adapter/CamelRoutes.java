@@ -80,8 +80,8 @@ public class CamelRoutes extends EndpointRouteBuilder {
                     Weather weather = current.getWeather().get(0);
 //                    exchange.getIn().setHeader("description", weather.getDescription());
                     exchange.getIn().setBody(new MsgB(
+                            exchange.getIn().getHeader("msg", String.class)+" "+
                             current.getName()+" : "+weather.getDescription(),
-//                            exchange.getIn().getHeader("msg", String.class),
                             new Date(), (double) current.getMain().getTemp()).toString()
                     );
                 })
