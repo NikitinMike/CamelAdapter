@@ -31,35 +31,37 @@ public final class AdapterMain {
 
     }
 
-    static double rnd(int n) {return random() * n;}
+    static double rnd(int n) {
+        return random() * n;
+    }
 
     static void testingCamel(int n) {
         ProducerTemplate template = camel.createProducerTemplate();
         template.sendBody("direct:start",
-            new MsgA(null, "en", new Coordinates(12.34, 56.78))
+                new MsgA(null, "en", new Coordinates(12.34, 56.78))
         );
         template.sendBody("direct:start",
-            new MsgA(null, "ru", new Coordinates(12.34, 56.78))
+                new MsgA(null, "ru", new Coordinates(12.34, 56.78))
         );
         template.sendBody("direct:start",
-            new MsgA("", "RU", new Coordinates(12.34, 56.78))
+                new MsgA("", "RU", new Coordinates(12.34, 56.78))
         );
         template.sendBody("direct:start",
-            new MsgA("current ", "ru", new Coordinates(lat, lon))
+                new MsgA("current ", "ru", new Coordinates(lat, lon))
         );
         for (int i = 1; i <= n; i++) { // cloud points
             template.sendBody("direct:start",
-                new MsgA("current " + i+1, "ru",
-                    new Coordinates(lat - rnd(n), lon - rnd(n))));
+                    new MsgA("current " + i + 1, "ru",
+                            new Coordinates(lat - rnd(n), lon - rnd(n))));
             template.sendBody("direct:start",
-                new MsgA("current " + i+2, "ru",
-                    new Coordinates(lat + rnd(n), lon + rnd(n))));
+                    new MsgA("current " + i + 2, "ru",
+                            new Coordinates(lat + rnd(n), lon + rnd(n))));
             template.sendBody("direct:start",
-                new MsgA("current " + i+3, "ru",
-                    new Coordinates(lat + rnd(n), lon - rnd(n))));
+                    new MsgA("current " + i + 3, "ru",
+                            new Coordinates(lat + rnd(n), lon - rnd(n))));
             template.sendBody("direct:start",
-                new MsgA("current " + i+4, "ru",
-                    new Coordinates(lat - rnd(n), lon + rnd(n))));
+                    new MsgA("current " + i + 4, "ru",
+                            new Coordinates(lat - rnd(n), lon + rnd(n))));
         }
     }
 

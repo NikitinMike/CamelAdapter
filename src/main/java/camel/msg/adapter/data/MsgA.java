@@ -1,23 +1,23 @@
 package camel.msg.adapter.data;
 
-import java.io.Serializable;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.Pattern;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-//import org.hibernate.validator.constraints.NotBlank;
+
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Pattern;
+import java.io.Serializable;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 public class MsgA implements Serializable {
 
-  @NotBlank
-  private String msg;
-  @NotBlank
-  @Pattern(regexp = "ru", message = "Only 'ru'")
-  private String lng; // enum: [ru, en, es]
-  private Coordinates coordinates;
+    @NotBlank
+    private String msg;
+    @NotBlank
+    @Pattern(regexp = "ru", message = "Only 'ru'")
+    private String lng; // enum: [ru, en, es]
+    private Coordinates coordinates;
 
 }

@@ -16,7 +16,7 @@ public class CamelRoutes extends EndpointRouteBuilder {
 
     final String weatherUrl = "https://api.openweathermap.org/data/2.5/weather";
     final String apikey = "f465148ee89b812ecf2ce551a19ce0bc";
-//    String city = "Yoshkar-Ola"; //  "London";
+    //    String city = "Yoshkar-Ola"; //  "London";
     final String paramUri = "&appid=" + apikey + "&lang=ru&units=metric&bridgeEndpoint=true";
 
     final ObjectMapper mapper = new ObjectMapper();
@@ -44,7 +44,7 @@ public class CamelRoutes extends EndpointRouteBuilder {
                 .process(exchange -> {
                     final String lng = exchange.getIn().getBody(MsgA.class).getLng();
                     if (!lng.matches("ru|RU")) exchange.getIn().setBody(null);
-                    else exchange.getIn().setHeader("lng",lng);
+                    else exchange.getIn().setHeader("lng", lng);
                 });
 
         from("direct:getMsgA")
@@ -71,7 +71,7 @@ public class CamelRoutes extends EndpointRouteBuilder {
 
         from("direct:getTemp")
 //                .log("POS:${body}")
-                .setHeader(Exchange.HTTP_QUERY, simple("${body}"+paramUri))
+                .setHeader(Exchange.HTTP_QUERY, simple("${body}" + paramUri))
                 .setHeader(Exchange.HTTP_METHOD, constant(HttpMethods.GET))
                 .to(weatherUrl)
                 .process(exchange -> {
@@ -80,8 +80,8 @@ public class CamelRoutes extends EndpointRouteBuilder {
                     Weather weather = current.getWeather().get(0);
 //                    exchange.getIn().setHeader("description", weather.getDescription());
                     exchange.getIn().setBody(new MsgB(
-                            exchange.getIn().getHeader("msg", String.class)+" "+
-                            current.getName()+" : "+weather.getDescription(),
+                            exchange.getIn().getHeader("msg", String.class) + " " +
+                                    current.getName() + " : " + weather.getDescription(),
                             new Date(), (double) current.getMain().getTemp()).toString()
                     );
                 })

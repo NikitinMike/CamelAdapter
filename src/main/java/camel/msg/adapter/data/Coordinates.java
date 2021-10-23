@@ -2,6 +2,7 @@ package camel.msg.adapter.data;
 
 import java.io.Serializable;
 import javax.validation.constraints.NotBlank;
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -11,14 +12,14 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class Coordinates implements Serializable {
 
-  @NotBlank
-  double latitude; // Широта
-  @NotBlank
-  double longitude; // Долгота
+    @NotBlank
+    double latitude; // Широта
+    @NotBlank
+    double longitude; // Долгота
 
-  @Override
-  public String toString(){
-    return String.format("lat=%.4f&lon=%.4f", latitude, longitude);
-  }
+    @Override
+    public String toString() {
+        return String.format("lat=%.4f&lon=%.4f", latitude, longitude);
+    }
 
 }
