@@ -23,40 +23,33 @@ public class CamelRoutes extends EndpointRouteBuilder {
 
     @Override
     public void configure() {
-
         from("direct:start")
 //                .log("START")
                 .to("direct:adapter");
-
         from("direct:adapter")
                 .to("direct:getLng").filter(body().isNotNull())
                 .to("direct:getMsgA")
-                .log("<<${body}")
+//                .log("<<${body}")
                 .choice()
                 .when(body().isNull())
                 .to("direct:error")
                 .otherwise()
                 .to("direct:message")
-                .end()
-        ;
-
+                .end();
         from("direct:getLng")
                 .process(exchange -> {
                     final String lng = exchange.getIn().getBody(MsgA.class).getLng();
-                    if (!lng.matches("ru|RU")) exchange.getIn().setBody(null);
-                    else exchange.getIn().setHeader("lng", lng);
+                    if (lng.matches("ru|RU")) exchange.getIn().setHeader("lng", lng);
+                    else exchange.getIn().setBody(null);
                 });
-
         from("direct:getMsgA")
                 .process(exchange -> {
                     final String msg = exchange.getIn().getBody(MsgA.class).getMsg();
                     if (msg == null || msg.equals("")) exchange.getIn().setBody(null);
                 });
-
         from("direct:error")
                 .setBody(simple("Invalid input message"))
                 .log("Error: ${body}");
-
         from("direct:message")
 //                .log("${body}")
                 .process(exchange -> {
@@ -66,31 +59,26 @@ public class CamelRoutes extends EndpointRouteBuilder {
                 })
                 .to("direct:getTemp")
 //                .log("${header.name} : ${header.description}")
-                .to("jms:queue:MsgB")
-        ;
-
+                .to("jms:queue:MsgB");
         from("direct:getTemp")
-//                .log("POS:${body}")
+//            .log("POS:${body}")
                 .setHeader(Exchange.HTTP_QUERY, simple("${body}" + paramUri))
                 .setHeader(Exchange.HTTP_METHOD, constant(HttpMethods.GET))
                 .to(weatherUrl)
                 .process(exchange -> {
                     final CurrentWeather current = mapper.readValue(exchange.getIn().getBody(String.class), CurrentWeather.class);
-//                    exchange.getIn().setHeader("name", current.getName());
+                    //  exchange.getIn().setHeader("name", current.getName());
                     Weather weather = current.getWeather().get(0);
-//                    exchange.getIn().setHeader("description", weather.getDescription());
-                    exchange.getIn().setBody(new MsgB(
-                            exchange.getIn().getHeader("msg", String.class) + " " +
-                                    current.getName() + " : " + weather.getDescription(),
-                            new Date(), (double) current.getMain().getTemp()).toString()
-                    );
-                })
-        ;
-
+                    //  exchange.getIn().setHeader("description", weather.getDescription());
+                    exchange.getIn().setBody(new MsgB(String.format("%s %s : %s",
+                            exchange.getIn().getHeader("msg", String.class),
+                            current.getName(), weather.getDescription()),
+                            new Date(), (double) current.getMain().getTemp())
+                            .toString());
+                });
         from("jms:queue:MsgB")
                 .to("direct:serviceB")
                 .transform(simple("${body}"));
-
         from("direct:serviceB")
                 .log(">>${body}");
     }
