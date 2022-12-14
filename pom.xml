@@ -28,7 +28,7 @@
     <camel.version>3.6.0</camel.version>
 
     <!-- Versions -->
-    <log4j2-version>2.14.1</log4j2-version>
+    <log4j2-version>2.19.0</log4j2-version>
     <cdi-api-1.2-version>1.2</cdi-api-1.2-version>
     <groovy-version>3.0.2</groovy-version>
     <maven-compiler-plugin-version>3.8.1</maven-compiler-plugin-version>
@@ -58,7 +58,7 @@
     <dependency>
       <groupId>org.projectlombok</groupId>
       <artifactId>lombok</artifactId>
-      <version>1.18.12</version>
+      <version>1.18.24</version>
     </dependency>
 
     <dependency>
@@ -143,8 +143,14 @@
     <dependency>
       <groupId>org.junit.jupiter</groupId>
       <artifactId>junit-jupiter</artifactId>
-      <version>5.8.1</version>
+      <version>5.9.0</version>
       <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <version>4.13.2</version>
+      <scope>compile</scope>
     </dependency>
 
   </dependencies>
@@ -197,6 +203,7 @@
         </configuration>
       </plugin>
 
+<!--
       <plugin>
         <artifactId>maven-surefire-plugin</artifactId>
         <configuration>
@@ -204,6 +211,7 @@
           <reuseForks>false</reuseForks>
         </configuration>
       </plugin>
+-->
 
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
