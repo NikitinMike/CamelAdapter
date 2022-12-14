@@ -26,9 +26,15 @@ public final class AdapterMain {
         camel.addRoutes(new CamelRoutes());
         camel.start();
         testingCamel(9);
+        testingCamel2("у попа была собака");
         Thread.sleep(1_000);
         camel.stop();
 
+    }
+
+    private static void testingCamel2(String s) {
+        Combiner c1 = new Combiner(s);
+        c1.fullOut();
     }
 
     static double rnd(int n) {

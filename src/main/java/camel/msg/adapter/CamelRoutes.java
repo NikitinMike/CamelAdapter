@@ -26,6 +26,7 @@ public class CamelRoutes extends EndpointRouteBuilder {
         from("direct:start")
 //                .log("START")
                 .to("direct:adapter");
+
         from("direct:adapter")
                 .to("direct:getLng").filter(body().isNotNull())
                 .to("direct:getMsgA")
@@ -36,20 +37,24 @@ public class CamelRoutes extends EndpointRouteBuilder {
                 .otherwise()
                 .to("direct:message")
                 .end();
+
         from("direct:getLng")
                 .process(exchange -> {
                     final String lng = exchange.getIn().getBody(MsgA.class).getLng();
                     if (lng.matches("ru|RU")) exchange.getIn().setHeader("lng", lng);
                     else exchange.getIn().setBody(null);
                 });
+
         from("direct:getMsgA")
                 .process(exchange -> {
                     final String msg = exchange.getIn().getBody(MsgA.class).getMsg();
                     if (msg == null || msg.equals("")) exchange.getIn().setBody(null);
                 });
+
         from("direct:error")
                 .setBody(simple("Invalid input message"))
                 .log("Error: ${body}");
+
         from("direct:message")
 //                .log("${body}")
                 .process(exchange -> {
@@ -60,6 +65,7 @@ public class CamelRoutes extends EndpointRouteBuilder {
                 .to("direct:getTemp")
 //                .log("${header.name} : ${header.description}")
                 .to("jms:queue:MsgB");
+
         from("direct:getTemp")
 //            .log("POS:${body}")
                 .setHeader(Exchange.HTTP_QUERY, simple("${body}" + paramUri))
@@ -76,10 +82,13 @@ public class CamelRoutes extends EndpointRouteBuilder {
                             new Date(), (double) current.getMain().getTemp())
                             .toString());
                 });
+
         from("jms:queue:MsgB")
                 .to("direct:serviceB")
                 .transform(simple("${body}"));
+
         from("direct:serviceB")
                 .log(">>${body}");
+
     }
 }
