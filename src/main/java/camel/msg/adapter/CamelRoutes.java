@@ -48,7 +48,7 @@ public class CamelRoutes extends EndpointRouteBuilder {
         from("direct:getMsgA")
                 .process(exchange -> {
                     final String msg = exchange.getIn().getBody(MsgA.class).getMsg();
-                    if (msg == null || msg.equals("")) exchange.getIn().setBody(null);
+                    if (msg == null || msg.isEmpty()) exchange.getIn().setBody(null);
                 });
 
         from("direct:error")
