@@ -27,7 +27,7 @@ public class Combiner {
         return out;
     }
 
-    public static final <T> void swap (T[] a, int i, int j) {
+    public static <T> void swap(T[] a, int i, int j) {
         T t = a[i];
         a[i] = a[j];
         a[j] = t;
