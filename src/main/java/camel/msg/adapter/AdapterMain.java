@@ -5,10 +5,10 @@ import camel.msg.adapter.data.MsgA;
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.camel.CamelContext;
 import org.apache.camel.ProducerTemplate;
-import org.apache.camel.component.jms.JmsComponent;
 import org.apache.camel.impl.DefaultCamelContext;
 
 import static java.lang.Math.random;
+import static org.apache.camel.component.jms.JmsComponent.*;
 
 public final class AdapterMain {
 
@@ -21,7 +21,7 @@ public final class AdapterMain {
         ActiveMQConnectionFactory connectionFactory = new ActiveMQConnectionFactory(
                 "vm://localhost?broker.persistent=false");
         connectionFactory.setTrustAllPackages(true);
-        camel.addComponent("jms", JmsComponent.jmsComponentAutoAcknowledge(connectionFactory));
+        camel.addComponent("jms", jmsComponentAutoAcknowledge(connectionFactory));
 
         camel.addRoutes(new CamelRoutes());
         camel.start();
